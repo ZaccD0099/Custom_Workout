@@ -115,7 +115,6 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: celldentifier, for: indexPath) as! WorkoutCollectionViewCell
         
-        print("going cell ")
         let currentWorkout = workouts?[indexPath.row]
         
         cell.workoutTitleLabel.text = currentWorkout?.title
@@ -143,7 +142,6 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
         selectedWorkoutIP = indexPath.row
         
         performSegue(withIdentifier: "goToActivity", sender: self)
-        print("cell detected")
     }
     
     
