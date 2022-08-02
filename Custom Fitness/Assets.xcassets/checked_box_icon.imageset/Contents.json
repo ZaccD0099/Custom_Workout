@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "add_icon.png",
+      "filename" : "checked_box_icon.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "add_icon@2x.png",
+      "filename" : "checked_box_icon@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "add_icon@3x.png",
+      "filename" : "checked_box_icon@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
@@ -19,8 +19,5 @@
   "info" : {
     "author" : "xcode",
     "version" : 1
-  },
-  "properties" : {
-    "template-rendering-intent" : "original"
   }
 }

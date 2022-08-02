@@ -6,10 +6,20 @@
 //
 
 import UIKit
+import RealmSwift
 
+protocol workoutDataDelegate {
+    func loadWorkouts()
+}
 
 class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
+
+    let realm = try! Realm()
+    
+    var workouts : Results<Workout>?
+    
+    var selectedWorkoutIP : Int?
     
     @IBOutlet weak var collectionView: UICollectionView!
     
@@ -17,22 +27,22 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
 
     let cellName = "WorkoutCollectionViewCell"
     
-    var testWorkoutData = [Workout]()
+    var cellSelectedWorkout : Workout?
+    
 
+    @IBOutlet weak var barButtonItem: UIBarButtonItem!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         collectionView?.dataSource = self
         collectionView?.delegate = self
-        
-        view.addSubview(collectionView!)
+
+//        view.addSubview(collectionView!)
         
         collectionView?.register(UINib(nibName: cellName, bundle: nil), forCellWithReuseIdentifier: celldentifier)
         
         collectionView.collectionViewLayout = createLayout()
-        
-        
-//         nav bar ui settings
         
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
@@ -41,27 +51,53 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
         navigationItem.standardAppearance = appearance
         navigationItem.scrollEdgeAppearance = appearance
+
+        loadWorkouts()
+
+    }
+    
+    //MARK: - Navigation
+    
+    @IBAction func addWorkoutPressed(_ sender: UIBarButtonItem) {
         
-        for _ in 1...10 {
-            let newWorkout = Workout()
-            newWorkout.title = "workout ttl"
-            newWorkout.type = "Weightlifting"
-            newWorkout.duration = 60
-            print("going")
-            testWorkoutData.append(newWorkout)
+        performSegue(withIdentifier: "popupAddWorkout", sender: self)
+    }
+    
+    func pullEditWorkoutScreen(cellWorkout : Workout) {
+        
+        cellSelectedWorkout = cellWorkout
+        
+        performSegue(withIdentifier: "popupEditWorkout", sender: self)
+        
+
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if (segue.identifier == "popupAddWorkout") {
+            let vc = segue.destination as! AddWorkoutPopup
+            vc.workoutViewCollection = self
+        }
+        
+        if (segue.identifier == "goToActivity") {
+            let vc = segue.destination as! ExerciseTableViewController
+            
+            if let indexPathRow = selectedWorkoutIP {
+                print(indexPathRow)
+                vc.selectedWorkout = workouts?[indexPathRow]
+            }
+            
+        }
+        
+        if(segue.identifier == "popupEditWorkout") {
+            let vc = segue.destination as! EditWorkoutPopup
+            
+            if let cellSelectedWorkout = cellSelectedWorkout {
+                vc.cellSelectedWorkout = cellSelectedWorkout
+                vc.workoutCollectionView = self
+            }
         }
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
 
     // MARK: UICollectionViewDataSource
 
@@ -72,7 +108,7 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
-        return testWorkoutData.count
+        return workouts?.count ?? 0
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -80,13 +116,16 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: celldentifier, for: indexPath) as! WorkoutCollectionViewCell
         
         print("going cell ")
-        let currentWorkout = testWorkoutData[indexPath.row]
+        let currentWorkout = workouts?[indexPath.row]
         
-        cell.workoutTitleLabel.text = currentWorkout.title
+        cell.workoutTitleLabel.text = currentWorkout?.title
         
-        cell.workoutType.text = currentWorkout.type
+        cell.workoutType.text = currentWorkout?.type
         
-        let workoutDuration = String(currentWorkout.duration ?? 0)
+        cell.WorkoutCollectionView = self
+        cell.cellWorkout = currentWorkout
+        
+        let workoutDuration = String(currentWorkout?.duration ?? 0)
         
         if workoutDuration != "0" {
             cell.workoutDuration.text = workoutDuration
@@ -94,16 +133,19 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
         else {
             cell.workoutDuration.text = ""
         }
-        // Configure the cell
+        
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 //        should detect cell selected and segue to the workout
         
+        selectedWorkoutIP = indexPath.row
+        
         performSegue(withIdentifier: "goToActivity", sender: self)
         print("cell detected")
     }
+    
     
 //    setting layout for cells
     
@@ -120,58 +162,23 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
 
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = spacing
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 10, bottom: 0, trailing: 10)
 
         let layout = UICollectionViewCompositionalLayout(section: section)
         return layout
     }
     
-
-    @IBAction func addButtonPressed(_ sender: UIButton) {
+    
+    //MARK: - Data Manipulation Methods
+    
+    func loadWorkouts() {
+        workouts = realm.objects(Workout.self)
         
+        collectionView.reloadData()
     }
+    
+    
+    
+
     
 }
-    // MARK: UICollectionViewDelegate
-    
-    
-//    extension WorkoutCollectionViewController: UICollectionViewDelegateFlowLayout {
-//
-//        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-//
-//
-////             add logic setting 2 cells per row
-//            return CGSize(width: 130, height: 130)
-//        }
-//    }
-
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-    
-    }
-    */
-
-

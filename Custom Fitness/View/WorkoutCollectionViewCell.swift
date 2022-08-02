@@ -16,8 +16,11 @@ class WorkoutCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var workoutDuration: UILabel!
     
     @IBOutlet weak var mainView: UIView!
-
     
+    var WorkoutCollectionView : WorkoutCollectionViewController?
+    
+    var cellWorkout : Workout?
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -29,6 +32,10 @@ class WorkoutCollectionViewCell: UICollectionViewCell {
         self.mainView.layer.masksToBounds = true
         self.mainView.layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: 30.0).cgPath
         
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(pullEditWorkout))
+        longPress.minimumPressDuration = 1
+        
+        self.mainView.addGestureRecognizer(longPress)
         
         
 //        self.viewofCell.layer.shadowColor = UIColor.black.cgColor
@@ -41,5 +48,19 @@ class WorkoutCollectionViewCell: UICollectionViewCell {
 
 
     }
+    
+    @objc func pullEditWorkout(Recognizer: UILongPressGestureRecognizer){
+        
+        if Recognizer.state == .began {
+            if let cellWorkout = cellWorkout {
+                WorkoutCollectionView?.pullEditWorkoutScreen(cellWorkout: cellWorkout)
+            }
+           
+            
+            print("long press fired")
+        }
+        
+    }
+    
 
 }

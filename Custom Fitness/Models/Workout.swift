@@ -6,10 +6,14 @@
 //
 
 import Foundation
+import RealmSwift
 
-class Workout {
+class Workout : Object {
     
-    var title : String = ""
-    var type : String = ""
-    var duration : Int?
+    @Persisted var title : String = ""
+    @Persisted var type : String = ""
+    @Persisted var duration : Int = 0
+    
+    @Persisted var workoutExcercises = List<Exercise>()
+    
 }
