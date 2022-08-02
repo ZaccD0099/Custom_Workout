@@ -102,7 +102,6 @@ class ActivityCell: UITableViewCell {
     
 
     @IBAction func checkButtonPressed(_ sender: Any) {
-        print("check button pressed")
         
         var exerciseCompleted : Bool?
         
@@ -123,9 +122,6 @@ class ActivityCell: UITableViewCell {
             catch {
                 print("error setting exercise complete \(error)")
             }
-        }
-        else {
-            print("not passing cellExercise")
         }
 
     }
