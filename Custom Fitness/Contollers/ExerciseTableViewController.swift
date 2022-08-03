@@ -39,6 +39,9 @@ class ExerciseTableViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(UINib(nibName: cellNibName, bundle: nil), forCellReuseIdentifier: cellReuseID)
         
+//        for draggable cells:
+        tableView.dragInteractionEnabled = true
+        
         if selectedWorkout != nil {
             loadExercises()
         }
@@ -92,7 +95,7 @@ class ExerciseTableViewController: UIViewController {
     func loadExercises() {
 //        change sorting later
 
-        exercises = selectedWorkout?.workoutExcercises.sorted(byKeyPath: "name", ascending: true)
+        exercises = selectedWorkout?.workoutExcercises.sorted(byKeyPath: "order", ascending: true)
 
         tableView.reloadData()
     }
@@ -190,7 +193,27 @@ extension ExerciseTableViewController : UITableViewDataSource {
         
         return cell
     }
-    
-    
 
+//    moving rows
+//    1. enable table to move rows
+//    2. update data model to enable movement && update table view ui
+    
+    
+//    move cells
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        
+        if let exercises = exercises {
+            let exerciseToMove = exercises[sourceIndexPath.row]
+            
+            exercises.insert(exerciseToMove, at: destinationIndexPath.row)
+        }
+        
+        
+    }
+    
 }
+
