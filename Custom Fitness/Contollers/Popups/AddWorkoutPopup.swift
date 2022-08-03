@@ -33,7 +33,7 @@ class AddWorkoutPopup: UIViewController {
 
     }
     
-//    get the first touch and if it is the background it will dismiss this view
+//    get the first touch and if it is the background it will dismiss this view.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?)
         {
             let touch = touches.first

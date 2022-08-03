@@ -17,6 +17,8 @@ class ExerciseTableViewController: UIViewController {
     var exercises : Results<Exercise>?
     
     var selectedWorkout : Workout?
+    
+    var selectedExercise : Exercise?
      
     let cellNibName = "ActivityCell"
     let cellReuseID = "activityCell"
@@ -77,6 +79,12 @@ class ExerciseTableViewController: UIViewController {
             vc.exerciseViewController = self
             vc.selectedWorkout = self.selectedWorkout
         }
+        
+        if (segue.identifier == "goToEditExercise") {
+            let vc = segue.destination as! EditExercisePopup
+            vc.exerciseViewController = self
+            vc.selectedExercise = self.selectedExercise
+        }
     }
     
     //MARK: - Data Manipulation
@@ -88,6 +96,10 @@ class ExerciseTableViewController: UIViewController {
 
         tableView.reloadData()
     }
+    
+    //MARK: - Navigation Prep
+    
+    
 
 }
 
@@ -101,6 +113,58 @@ extension ExerciseTableViewController : UITableViewDelegate {
 //MARK: - table view datasource methods
 extension ExerciseTableViewController : UITableViewDataSource {
     
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    
+//    Can also do leadingSwipActions for other direction
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { deleteAction, view, handler in
+            if let currentExercise = self.exercises?[indexPath.row] {
+                do {
+                    try self.realm.write({
+                        self.realm.delete(currentExercise)
+                    })
+                } catch {
+                    print("error in swiping row \(error)")
+                }
+                self.loadExercises()
+            }
+        }
+//        Adds image above text
+        deleteAction.image = UIGraphicsImageRenderer(size: CGSize(width: 30, height: 40)).image {
+            _ in UIImage(named: "trash_icon_dark")!.draw(in: CGRect(x: 0, y: 0, width: 30, height: 40))
+        }
+        
+        
+        
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { editAction, view, handler in
+            
+            if let selectedWorkout = self.selectedWorkout {
+                
+                self.selectedExercise = selectedWorkout.workoutExcercises[indexPath.row]
+                
+                self.performSegue(withIdentifier: "goToEditExercise", sender: self)
+            }
+        }
+        
+        editAction.image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image {
+            _ in UIImage(named: "edit_icon_dark")!.draw(in: CGRect(x: 0, y: 0, width: 40, height: 40))
+        }
+        
+//        editAction.backgroundColor = UIColor(named: "activity_background")
+
+        
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction, editAction])
+        
+//        doesn't delete the cell if fully swiped.
+        configuration.performsFirstActionWithFullSwipe = false
+        
+        return configuration
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if let exerciseCount = exercises?.count {
@@ -126,4 +190,7 @@ extension ExerciseTableViewController : UITableViewDataSource {
         
         return cell
     }
+    
+    
+
 }
