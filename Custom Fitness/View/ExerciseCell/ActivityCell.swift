@@ -9,24 +9,30 @@ import UIKit
 import RealmSwift
 
 
+protocol ActivityCellDelegate : AnyObject {
+    func tappedCheckButton(_ cell: ActivityCell, _ exercise : Exercise?)
+}
+
 class ActivityCell: UITableViewCell {
     
     @IBOutlet weak var cellView: UIView!
-    
     @IBOutlet weak var activityTitle: UILabel!
-    
     @IBOutlet weak var activityDetails: UILabel!
-    
     @IBOutlet weak var checkButton: UIButton!
-    
     @IBOutlet weak var checkboxImage: UIImageView!
     
     var realm = try! Realm()
-    
     var cellExercise : Exercise?
+    weak var delegate : ActivityCellDelegate?
+    
+    //    checkbox logic
+    let checkedImage = UIImage(named: "checked_box_icon")! as UIImage
+    let uncheckedImage = UIImage(named: "unchecked_box_icon")! as UIImage
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        
+        
 
     }
 
@@ -63,7 +69,6 @@ class ActivityCell: UITableViewCell {
         
 //        logic to determine contents and format of the cells details
         var setReps : String?
-        
         var activityDetailsString : String = ""
         
         
@@ -94,39 +99,11 @@ class ActivityCell: UITableViewCell {
         activityDetails.text = activityDetailsString
     }
     
-    
-//    checkbox logic
-    let checkedImage = UIImage(named: "checked_box_icon")! as UIImage
-    let uncheckedImage = UIImage(named: "unchecked_box_icon")! as UIImage
-    
-    
 
     @IBAction func checkButtonPressed(_ sender: Any) {
         
-        var exerciseCompleted : Bool?
-        
-        if let completed = cellExercise?.completed {
-            if completed {
-                exerciseCompleted = false
-                checkboxImage.image = UIImage(named: "unchecked_box_icon")
-            } else {
-                exerciseCompleted = true
-                checkboxImage.image = UIImage(named: "checked_box_icon")
-            }
-            
-            do {
-                try realm.write({
-                    cellExercise?.completed = exerciseCompleted!
-                })
-            }
-            catch {
-                print("error setting exercise complete \(error)")
-            }
-        }
-
+        delegate?.tappedCheckButton(self, cellExercise)
     }
-    
-    
     
     func setCheckButton(_ isComplete : Bool) {
         
@@ -138,3 +115,5 @@ class ActivityCell: UITableViewCell {
         }
     }
 }
+
+

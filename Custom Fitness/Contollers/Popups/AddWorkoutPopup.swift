@@ -8,20 +8,21 @@
 import UIKit
 import RealmSwift
 
+protocol AddWorkoutPopupProtocol {
+    func saveWorkout(_ selectedWorkout : Workout?)
+    func loadWorkouts()
+}
+
 class AddWorkoutPopup: UIViewController {
     
     let realm = try! Realm()
-//
-    var workoutViewCollection : WorkoutCollectionViewController?
+
+    var delegate : AddWorkoutPopupProtocol?
     
     @IBOutlet weak var popUpView: UIView!
-    
     @IBOutlet var backgroundView: UIView!
-    
     @IBOutlet weak var nameTextField: UITextField!
-    
     @IBOutlet weak var typeTextField: UITextField!
-    
     @IBOutlet weak var durationTextField: UITextField!
     
     override func viewDidLoad() {
@@ -34,8 +35,7 @@ class AddWorkoutPopup: UIViewController {
     }
     
 //    get the first touch and if it is the background it will dismiss this view.
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?)
-        {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
             let touch = touches.first
             if touch?.view == self.backgroundView {
                 self.dismiss(animated: true, completion: nil)
@@ -49,7 +49,7 @@ class AddWorkoutPopup: UIViewController {
         print("1")
           //before dismissing the ViewController, passed the data inside the closure. used because viewwillappear will not fire on popover dismissal
         dismiss(animated: true) {
-            self.workoutViewCollection?.loadWorkouts()
+            self.delegate?.loadWorkouts()
         }
         
     }
@@ -58,24 +58,13 @@ class AddWorkoutPopup: UIViewController {
     //MARK: - Data Manipualtion Methods
     
     func addWorkout(){
-        
         let newWorkout = Workout()
         
         newWorkout.title = nameTextField.text ?? ""
         newWorkout.type = typeTextField.text ?? ""
+        newWorkout.duration = Int(durationTextField.text!) ?? 0
         
-        let durationInt : Int = Int(durationTextField.text!) ?? 0
-        newWorkout.duration = durationInt
-        
-        do {
-            try realm.write({
-                realm.add(newWorkout)
-            })
-        } catch {
-            print("error adding new workout \(error)")
-        }
-        
+        delegate?.saveWorkout(newWorkout)
     }
-    
 }
 

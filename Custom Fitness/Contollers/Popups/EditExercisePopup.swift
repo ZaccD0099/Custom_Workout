@@ -8,11 +8,18 @@
 import UIKit
 import RealmSwift
 
+protocol EditWorkoutPopupDelegate {
+    func getExercise() -> Exercise?
+    func loadExercises()
+    func updateExercise(_ saveableExercise : Exercise?)
+}
+
 class EditExercisePopup: UIViewController {
     
     let realm = try! Realm()
     
-    var exerciseViewController : ExerciseTableViewController?
+    var delegate : EditWorkoutPopupDelegate?
+    
     var selectedExercise : Exercise?
     
     @IBOutlet weak var popUpView: UIView!
@@ -25,26 +32,32 @@ class EditExercisePopup: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setTextFields()
-        
         popUpView.layer.cornerRadius = 15.0
         popUpView.layer.borderWidth = 1.0
         popUpView.layer.borderColor = UIColor(named: "custom_dark")?.cgColor
+        
+        selectedExercise = delegate?.getExercise()
+        setTextFields()
     }
     
     
-    
     @IBAction func saveChangesPressed(_ sender: UIButton) {
-        saveExerciseChanges()
+        if let selectedExercise = selectedExercise {
+            selectedExercise.name = nameTextField.text ?? ""
+            selectedExercise.duration = Int(durationTextField.text!) ?? 0
+            selectedExercise.sets = Int(setsTextField.text!) ?? 0
+            selectedExercise.reps = Int(repsTextField.text!) ?? 0
+            
+            delegate?.updateExercise(selectedExercise)
+        }
         
         dismiss(animated: true) {
-            self.exerciseViewController?.loadExercises()
+            self.delegate?.loadExercises()
         }
     }
     
     
     func setTextFields() {
-        
         if let selectedExercise = selectedExercise {
             nameTextField.text = selectedExercise.name
             durationTextField.text = String(selectedExercise.duration)
@@ -52,27 +65,9 @@ class EditExercisePopup: UIViewController {
             repsTextField.text = String(selectedExercise.reps)
         }
     }
-    
-    
-    func saveExerciseChanges() {
-        
-        if let selectedExercise = selectedExercise {
-            
-            do {
-                try realm.write({
-                    selectedExercise.name = nameTextField.text ?? ""
-                    selectedExercise.duration = Int(durationTextField.text!) ?? 0
-                    selectedExercise.sets = Int(setsTextField.text!) ?? 0
-                    selectedExercise.reps = Int(repsTextField.text!) ?? 0
-                })
-            }
-            catch {
-                print("error savinf exercise edits \(error)")
-            }
-        }
-    }
 
-    
+
+//    dismisses popup when press out main view
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?)
         {
             let touch = touches.first

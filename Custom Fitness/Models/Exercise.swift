@@ -9,6 +9,9 @@ import UIKit
 import RealmSwift
 
 class Exercise : Object {
+    
+    @Persisted(primaryKey: true) var id = UUID().uuidString
+    
     @Persisted var name : String = ""
     @Persisted var duration : Int = 0
     @Persisted var sets : Int = 0
@@ -18,5 +21,18 @@ class Exercise : Object {
 
     
     var parentCategory = LinkingObjects(fromType: Workout.self, property: "workoutExcercises")
+    
+    override static func primaryKey() -> String? {
+        return "id"
+    }
 
+//    func dragItems(_ exerciseList: List<Exercise>, for indexPath: IndexPath) -> [UIDragItem] {
+//        let exercise = exerciseList[indexPath.row]
+//
+//        let itemProvider = NSItemProvider(object: exerciseList[indexPath.row])
+//
+//        return [
+//            UIDragItem(itemProvider: itemProvider)
+//        ]
+//    }
 }

@@ -12,36 +12,24 @@ protocol workoutDataDelegate {
     func loadWorkouts()
 }
 
-class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    
+class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, WorkoutCollectionViewCellProtocol{
 
+    @IBOutlet weak var collectionView: UICollectionView!
+    
     let realm = try! Realm()
     
     var workouts : Results<Workout>?
-    
-    var selectedWorkoutIP : Int?
-    
-    @IBOutlet weak var collectionView: UICollectionView!
-    
-    let celldentifier = "WorkoutCell"
-
-    let cellName = "WorkoutCollectionViewCell"
-    
     var cellSelectedWorkout : Workout?
-    
-
-    @IBOutlet weak var barButtonItem: UIBarButtonItem!
+    var selectedWorkoutIP : Int?
+    let celldentifier = "WorkoutCell"
+    let cellName = "WorkoutCollectionViewCell"
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         collectionView?.dataSource = self
         collectionView?.delegate = self
-
-//        view.addSubview(collectionView!)
-        
         collectionView?.register(UINib(nibName: cellName, bundle: nil), forCellWithReuseIdentifier: celldentifier)
-        
         collectionView.collectionViewLayout = createLayout()
         
         let appearance = UINavigationBarAppearance()
@@ -53,29 +41,22 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
         navigationItem.scrollEdgeAppearance = appearance
 
         loadWorkouts()
-
     }
     
     //MARK: - Navigation
     
     @IBAction func addWorkoutPressed(_ sender: UIBarButtonItem) {
-        
         performSegue(withIdentifier: "popupAddWorkout", sender: self)
     }
     
-    func pullEditWorkoutScreen(cellWorkout : Workout) {
-        
-        cellSelectedWorkout = cellWorkout
-        
+    func pullEditWorkoutScreen() {
         performSegue(withIdentifier: "popupEditWorkout", sender: self)
-        
-
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if (segue.identifier == "popupAddWorkout") {
             let vc = segue.destination as! AddWorkoutPopup
-            vc.workoutViewCollection = self
+            vc.delegate = self
         }
         
         if (segue.identifier == "goToActivity") {
@@ -85,26 +66,18 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
                 print(indexPathRow)
                 vc.selectedWorkout = workouts?[indexPathRow]
             }
-            
         }
-        
-        if(segue.identifier == "popupEditWorkout") {
+        if (segue.identifier == "popupEditWorkout") {
             let vc = segue.destination as! EditWorkoutPopup
-            
-            if let cellSelectedWorkout = cellSelectedWorkout {
-                vc.cellSelectedWorkout = cellSelectedWorkout
-                vc.workoutCollectionView = self
-            }
+            vc.delegate = self
         }
     }
-    
 
     // MARK: UICollectionViewDataSource
 
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
-
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
@@ -114,15 +87,12 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: celldentifier, for: indexPath) as! WorkoutCollectionViewCell
-        
         let currentWorkout = workouts?[indexPath.row]
         
-        cell.workoutTitleLabel.text = currentWorkout?.title
-        
-        cell.workoutType.text = currentWorkout?.type
-        
-        cell.WorkoutCollectionView = self
+        cell.delegate = self
         cell.cellWorkout = currentWorkout
+        cell.workoutTitleLabel.text = currentWorkout?.title
+        cell.workoutType.text = currentWorkout?.type
         
         let workoutDuration = String(currentWorkout?.duration ?? 0)
         
@@ -138,15 +108,12 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 //        should detect cell selected and segue to the workout
-        
         selectedWorkoutIP = indexPath.row
-        
         performSegue(withIdentifier: "goToActivity", sender: self)
     }
     
     
 //    setting layout for cells
-    
     func createLayout() -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                              heightDimension: .fractionalHeight(1.0))
@@ -165,18 +132,47 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
         let layout = UICollectionViewCompositionalLayout(section: section)
         return layout
     }
+}
+
+//MARK: - Data Manipulation Methods
+
+extension WorkoutCollectionViewController : EditWorkoutPopupProtocol, AddWorkoutPopupProtocol {
     
+    func getWorkout() -> Workout? { return cellSelectedWorkout }
     
-    //MARK: - Data Manipulation Methods
+    func setSelectedWorkout(_ selectedWorkout : Workout) {
+        cellSelectedWorkout = selectedWorkout
+    }
     
     func loadWorkouts() {
         workouts = realm.objects(Workout.self)
-        
         collectionView.reloadData()
     }
     
+    func saveWorkout(_ selectedWorkout : Workout?) {
+        if let updatedWorkout = selectedWorkout {
+            do {
+                try realm.write({
+                    realm.add(updatedWorkout, update: .modified)
+                })
+            }
+            catch {
+                print("error updating workout \(error)")
+            }
+        }
+    }
     
-    
-
+    func removeWorkout(_ selectedWorkout : Workout?) {
+        if let removableWorkout = selectedWorkout {
+            do {
+                try realm.write({
+                    realm.delete(removableWorkout)
+                })
+            }
+            catch {
+                print("error deleting a workout from popup \(error)")
+            }
+        }
+    }
     
 }
