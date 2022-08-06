@@ -7,6 +7,7 @@
 
 import UIKit
 import RealmSwift
+import DropDown
 
 protocol EditWorkoutPopupDelegate {
     func getExercise() -> Exercise?
@@ -29,6 +30,10 @@ class EditExercisePopup: UIViewController {
     @IBOutlet weak var setsTextField: UITextField!
     @IBOutlet weak var repsTextField: UITextField!
     
+    //MARK: - dropdown
+    
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -39,6 +44,8 @@ class EditExercisePopup: UIViewController {
         selectedExercise = delegate?.getExercise()
         setTextFields()
     }
+    
+
     
     
     @IBAction func saveChangesPressed(_ sender: UIButton) {

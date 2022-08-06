@@ -21,6 +21,9 @@ class ExerciseTableViewController: UIViewController {
     let cellNibName = "ActivityCell"
     let cellReuseID = "activityCell"
     
+    var currentExerciseSet = false
+    var completedExercise = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -44,16 +47,37 @@ class ExerciseTableViewController: UIViewController {
         if selectedWorkout != nil {
             loadExercises()
         }
+        
     }
     
     
     //MARK: - reset action
     
+
+    
+    
     @IBAction func resetButtonPressed(_ sender: UIButton) {
+        print("running")
         let alert = UIAlertController(title: "Reset Workout", message: "Are you sure you want to reset all progress?", preferredStyle: .alert)
         
         let resetAction = UIAlertAction(title: "Reset", style: .default) { (action) in
-            //            reset workout code here
+            if let exercises = self.exercises {
+                for exercise in exercises {
+                    do {
+                        try self.realm.write({
+                            exercise.completed = false
+                            
+                            if exercise.current{
+                                exercise.current = false
+                                self.currentExerciseSet = false
+                            }
+                        })
+                    } catch {
+                        print("error reseting workout \(error)")
+                    }
+                }
+                self.loadExercises()
+            }
         }
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (action) in
@@ -63,6 +87,7 @@ class ExerciseTableViewController: UIViewController {
         alert.addAction(resetAction)
         alert.addAction(cancelAction)
         present(alert, animated: true, completion: nil)
+        
     }
     
     //MARK: - Adding workouts popup segue
@@ -122,7 +147,7 @@ extension ExerciseTableViewController : UITableViewDelegate, UITableViewDragDele
                 } catch {
                     print("error setting exercise order \(error)")
                 }
-                
+        
             }
         }
     }
@@ -190,8 +215,9 @@ extension ExerciseTableViewController : UITableViewDataSource, ActivityCellDeleg
             
             cell.cellExercise = currentExercise
             cell.setCheckButton(currentExercise.completed)
+            cell.setCellUI()
             cell.activityTitle.text = currentExercise.name
-            cell.addCellDetails(currentExercise.duration, currentExercise.sets, currentExercise.reps)
+            cell.addCellDetails(currentExercise.duration, currentExercise.sets, currentExercise.reps, currentExercise.intervals, currentExercise.intervalActiveTime, currentExercise.intervalRestTime, currentExercise.completedIntervals)
             
             cell.delegate = self
         }
@@ -203,11 +229,18 @@ extension ExerciseTableViewController : UITableViewDataSource, ActivityCellDeleg
             do {
                 try realm.write({
                     exercise.completed = !exercise.completed
+                    
+                    if exercise.current && exercise.completed {
+                        exercise.current = false
+                        currentExerciseSet = false
+                    }
                 })
             } catch {
                 print("error setting exercise complete \(error)")
             }
-            cell.setCheckButton(exercise.completed)
+//            cell.setCheckButton(exercise.completed)
+//            cell.setCellUI()
+            loadExercises()
         }
     }
 }
@@ -220,7 +253,6 @@ extension ExerciseTableViewController : AddExercisePopupProtocol, EditWorkoutPop
     }
     
     func updateExercise(_ saveableExercise: Exercise?) {
-        
         if let exercise = saveableExercise {
             do {
                 try realm.write {
@@ -240,6 +272,7 @@ extension ExerciseTableViewController : AddExercisePopupProtocol, EditWorkoutPop
                 list.append(element)
                 return list
             }
+            setCurrentWorkout()
             tableView.reloadData()
             print("reloaded table")
         }
@@ -249,11 +282,39 @@ extension ExerciseTableViewController : AddExercisePopupProtocol, EditWorkoutPop
         do {
             try realm.write({
                 selectedWorkout?.workoutExcercises.append(newExercise)
-                print("added item")
             })
         } catch {
             print("error adding exercise \(error)")
         }
     }
+    
+    func setCurrentWorkout() {
+        if let exercises = exercises {
+            for exercise in exercises {
+                if exercise.current {
+                    currentExerciseSet = true
+                    print("already current exercise set")
+                }
+                else if exercise.completed == false && currentExerciseSet == false {
+                    currentExerciseSet = true
+                    
+                    do {
+                        try realm.write({
+                            exercise.current = true
+                        })
+                    } catch {
+                        print("error setting current exercise \(error)")
+                    }
+                    
+                    return
+                }
+            }
+            completedExercise = true
+            print("completed exercise")
+        }
+    }
+    
+    
+    
 }
 

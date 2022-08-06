@@ -26,9 +26,13 @@
 		928CEC1C2892181000596BD5 /* ActivityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928CEC1A2892181000596BD5 /* ActivityCell.swift */; };
 		928CEC1D2892181000596BD5 /* ActivityCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 928CEC1B2892181000596BD5 /* ActivityCell.xib */; };
 		92FEA2A628943979002E9D03 /* AddWorkoutPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FEA2A528943979002E9D03 /* AddWorkoutPopup.swift */; };
+		9B548C6F0D1FDD26714536EF /* Pods_Custom_Fitness.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A3985C9D7A86187FBE88244 /* Pods_Custom_Fitness.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2A3985C9D7A86187FBE88244 /* Pods_Custom_Fitness.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Custom_Fitness.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		40B6CC41E0EDC08A1360C20D /* Pods-Custom Fitness.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Custom Fitness.debug.xcconfig"; path = "Target Support Files/Pods-Custom Fitness/Pods-Custom Fitness.debug.xcconfig"; sourceTree = "<group>"; };
+		8EB5F31EA57602A3EFFECBAC /* Pods-Custom Fitness.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Custom Fitness.release.xcconfig"; path = "Target Support Files/Pods-Custom Fitness/Pods-Custom Fitness.release.xcconfig"; sourceTree = "<group>"; };
 		92234BB228943E1A00D19CED /* AddExercisePopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExercisePopup.swift; sourceTree = "<group>"; };
 		92234BBC2895EE6600D19CED /* Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exercise.swift; sourceTree = "<group>"; };
 		92234BBE2898A14600D19CED /* EditWorkoutPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditWorkoutPopup.swift; sourceTree = "<group>"; };
@@ -57,12 +61,21 @@
 			files = (
 				92234BBB2895D79800D19CED /* RealmSwift in Frameworks */,
 				92234BB92895D79800D19CED /* Realm in Frameworks */,
+				9B548C6F0D1FDD26714536EF /* Pods_Custom_Fitness.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		59D97E9655B96A6917F14FFD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2A3985C9D7A86187FBE88244 /* Pods_Custom_Fitness.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		92234C042899F1DF00D19CED /* WorkoutCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -97,6 +110,8 @@
 			children = (
 				92419D762891AE6300D99AF3 /* Custom Fitness */,
 				92419D752891AE6300D99AF3 /* Products */,
+				F569C77EAFE22D4B9452600E /* Pods */,
+				59D97E9655B96A6917F14FFD /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -152,6 +167,16 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		F569C77EAFE22D4B9452600E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				40B6CC41E0EDC08A1360C20D /* Pods-Custom Fitness.debug.xcconfig */,
+				8EB5F31EA57602A3EFFECBAC /* Pods-Custom Fitness.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -159,9 +184,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 92419D882891AE6400D99AF3 /* Build configuration list for PBXNativeTarget "Custom Fitness" */;
 			buildPhases = (
+				49F21D383546F64E6F012F86 /* [CP] Check Pods Manifest.lock */,
 				92419D702891AE6300D99AF3 /* Sources */,
 				92419D712891AE6300D99AF3 /* Frameworks */,
 				92419D722891AE6300D99AF3 /* Resources */,
+				2D124BE0B66678C7BE63A919 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -201,7 +228,7 @@
 			);
 			mainGroup = 92419D6B2891AE6300D99AF3;
 			packageReferences = (
-				92234BB72895D79800D19CED /* XCRemoteSwiftPackageReference "realm-swift" */,
+				92234BB72895D79800D19CED /* XCRemoteSwiftPackageReference "realm-swift.git" */,
 			);
 			productRefGroup = 92419D752891AE6300D99AF3 /* Products */;
 			projectDirPath = "";
@@ -226,6 +253,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2D124BE0B66678C7BE63A919 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Custom Fitness/Pods-Custom Fitness-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Custom Fitness/Pods-Custom Fitness-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Custom Fitness/Pods-Custom Fitness-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		49F21D383546F64E6F012F86 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Custom Fitness-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		92419D702891AE6300D99AF3 /* Sources */ = {
@@ -385,6 +454,7 @@
 		};
 		92419D892891AE6400D99AF3 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 40B6CC41E0EDC08A1360C20D /* Pods-Custom Fitness.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -413,6 +483,7 @@
 		};
 		92419D8A2891AE6400D99AF3 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8EB5F31EA57602A3EFFECBAC /* Pods-Custom Fitness.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -463,7 +534,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		92234BB72895D79800D19CED /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+		92234BB72895D79800D19CED /* XCRemoteSwiftPackageReference "realm-swift.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/realm-swift.git";
 			requirement = {
@@ -476,12 +547,12 @@
 /* Begin XCSwiftPackageProductDependency section */
 		92234BB82895D79800D19CED /* Realm */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 92234BB72895D79800D19CED /* XCRemoteSwiftPackageReference "realm-swift" */;
+			package = 92234BB72895D79800D19CED /* XCRemoteSwiftPackageReference "realm-swift.git" */;
 			productName = Realm;
 		};
 		92234BBA2895D79800D19CED /* RealmSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 92234BB72895D79800D19CED /* XCRemoteSwiftPackageReference "realm-swift" */;
+			package = 92234BB72895D79800D19CED /* XCRemoteSwiftPackageReference "realm-swift.git" */;
 			productName = RealmSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
