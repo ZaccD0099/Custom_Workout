@@ -31,7 +31,6 @@ class AddWorkoutPopup: UIViewController {
         popUpView.layer.cornerRadius = 15.0
         popUpView.layer.borderWidth = 1.0
         popUpView.layer.borderColor = UIColor(named: "custom_dark")?.cgColor
-
     }
     
 //    get the first touch and if it is the background it will dismiss this view.

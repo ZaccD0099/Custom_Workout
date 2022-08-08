@@ -11,6 +11,8 @@ import RealmSwift
 class ExerciseTableViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var workoutTime: UILabel!
+    @IBOutlet weak var playPauseButton: UIButton!
     
     let realm = try! Realm()
     
@@ -23,6 +25,16 @@ class ExerciseTableViewController: UIViewController {
     
     var currentExerciseSet = false
     var completedExercise = false
+    var currentExerciseIndex : IndexPath?
+    
+    var workoutPlaying : Bool = false
+    var workoutCount : Int = 0
+    var workoutTimer : Timer = Timer()
+    
+    var currentExerciseInterval : Float = 0.0
+    var currentExerciseLabel : UILabel?
+    var currentExerciseCount : Int = 0
+    var currentExerciseTimer : Timer = Timer()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,20 +59,35 @@ class ExerciseTableViewController: UIViewController {
         if selectedWorkout != nil {
             loadExercises()
         }
-        
     }
     
+    //MARK: - Play Pause, Reset Buttons
     
-    //MARK: - reset action
-    
-
-    
+    @IBAction func playPausedButtonPressed(_ sender: UIButton) {
+        workoutPlaying = !workoutPlaying
+        
+        if workoutPlaying {
+            workoutTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(workoutCounter), userInfo: nil, repeats: true)
+            playPauseButton.setBackgroundImage(UIImage(named: "pause_icon_dark"), for: .normal)
+        }
+        else {
+            workoutTimer.invalidate()
+            playPauseButton.setBackgroundImage(UIImage(named: "play_icon_dark"), for: .normal)
+        }
+    }
     
     @IBAction func resetButtonPressed(_ sender: UIButton) {
         print("running")
         let alert = UIAlertController(title: "Reset Workout", message: "Are you sure you want to reset all progress?", preferredStyle: .alert)
         
         let resetAction = UIAlertAction(title: "Reset", style: .default) { (action) in
+//            resets overall workout time
+            self.workoutCount = 0
+            let time = self.secondsToHoursMinutesSeconds(self.workoutCount)
+            let timeString = self.makeTimeString(time.0, time.1, time.2)
+            self.workoutTime.text = timeString
+            
+//            reseting all exercises in the workout to incomplete status
             if let exercises = self.exercises {
                 for exercise in exercises {
                     do {
@@ -80,6 +107,7 @@ class ExerciseTableViewController: UIViewController {
             }
         }
         
+        
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (action) in
             //            cancel action code here
         }
@@ -89,6 +117,32 @@ class ExerciseTableViewController: UIViewController {
         present(alert, animated: true, completion: nil)
         
     }
+    
+    
+    @objc func workoutCounter() -> Void {
+        self.workoutCount += 1
+        let time = secondsToHoursMinutesSeconds(workoutCount)
+        let timeString = makeTimeString(time.0, time.1, time.2)
+        
+        workoutTime.text = timeString
+    }
+        
+    func secondsToHoursMinutesSeconds(_ seconds : Int) -> (Int, Int, Int) {
+        return ( seconds / 3600, (seconds % 3600) / 60, (seconds % 3600) % 60 )
+    }
+    
+    func makeTimeString (_ hours : Int, _ minutes : Int, _ seconds : Int) -> String {
+        var timeString : String = ""
+        
+        timeString += String(format: "%02d", hours)
+        timeString += ":"
+        timeString += String(format: "%02d", minutes)
+        timeString += ":"
+        timeString += String(format: "%02d", seconds)
+        
+        return timeString
+    }
+    
     
     //MARK: - Adding workouts popup segue
     
@@ -218,11 +272,16 @@ extension ExerciseTableViewController : UITableViewDataSource, ActivityCellDeleg
             cell.setCellUI()
             cell.activityTitle.text = currentExercise.name
             cell.addCellDetails(currentExercise.duration, currentExercise.sets, currentExercise.reps, currentExercise.intervals, currentExercise.intervalActiveTime, currentExercise.intervalRestTime, currentExercise.completedIntervals)
-            
             cell.delegate = self
+            
+            if currentExercise.current {
+                currentExerciseIndex = indexPath
+            }
         }
         return cell
     }
+    
+    
     
     func tappedCheckButton(_ cell: ActivityCell, _ exercise: Exercise?) {
         if let exercise = exercise {
@@ -240,6 +299,7 @@ extension ExerciseTableViewController : UITableViewDataSource, ActivityCellDeleg
             }
 //            cell.setCheckButton(exercise.completed)
 //            cell.setCellUI()
+            
             loadExercises()
         }
     }
@@ -274,7 +334,13 @@ extension ExerciseTableViewController : AddExercisePopupProtocol, EditWorkoutPop
             }
             setCurrentWorkout()
             tableView.reloadData()
-            print("reloaded table")
+//            forces table to update before continuing could also try dispatch async
+            tableView.layoutIfNeeded()
+            if let currentExerciseIndex = currentExerciseIndex  {
+                print("Index from load exercise: \(currentExerciseIndex)")
+                tableView.scrollToRow(at: currentExerciseIndex, at: .top, animated: true)
+            }
+            currentExerciseIndex = nil
         }
     }
     
@@ -291,13 +357,13 @@ extension ExerciseTableViewController : AddExercisePopupProtocol, EditWorkoutPop
     func setCurrentWorkout() {
         if let exercises = exercises {
             for exercise in exercises {
+//                if the exercise is already set - this avoids 2 highlighted cell both being current exercise
                 if exercise.current {
                     currentExerciseSet = true
-                    print("already current exercise set")
                 }
+//                sets the next incomplete exercise to current exercise and toggle exerciseSet
                 else if exercise.completed == false && currentExerciseSet == false {
                     currentExerciseSet = true
-                    
                     do {
                         try realm.write({
                             exercise.current = true
@@ -310,11 +376,6 @@ extension ExerciseTableViewController : AddExercisePopupProtocol, EditWorkoutPop
                 }
             }
             completedExercise = true
-            print("completed exercise")
         }
     }
-    
-    
-    
 }
-

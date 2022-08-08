@@ -30,6 +30,7 @@ class ActivityCell: UITableViewCell {
     let checkedImage = UIImage(named: "checked_box_icon")! as UIImage
     let uncheckedImage = UIImage(named: "unchecked_box_icon")! as UIImage
     
+
     override func awakeFromNib() {
         super.awakeFromNib()
     }
@@ -57,26 +58,24 @@ class ActivityCell: UITableViewCell {
     }
 
     
-    func addCellDetails(_ durationInt: Int, _ setsInt: Int, _ repsInt : Int, _ intervalsInt : Int, _ activityTimeFloat: Float, _ restTimeFloat: Float, _ completedIntervalsInt : Int) {
+    func addCellDetails(_ durationInt: Int, _ setsInt: Int, _ repsInt : Int, _ intervalsInt : Int, _ activityTimeInt: Int, _ restTimeInt: Int, _ completedIntervalsInt : Int) {
         
         //        setting strings for the functions optional inputs to return correct string in cell
         var duration : String?
         var sets : String?
         var reps : String?
         var intervals : String?
-        var activityTime : String?
-        var restTime : String?
+//        var activityTime : String?
+//        var restTime : String?
         let completedIntervals : String = String(completedIntervalsInt)
         
         if durationInt != 0 { duration = String(durationInt) }
         if setsInt != 0 { sets = String(setsInt) }
         if repsInt != 0 { reps = String(repsInt) }
         if intervalsInt != 0 { intervals = String(intervalsInt) }
-        if activityTimeFloat != 0.0 { activityTime = String(activityTimeFloat) }
-        if restTimeFloat != 0 { restTime = String(restTimeFloat) }
+//        if activityTimeInt != 0 { activityTime = String(activityTimeInt) }
+//        if restTimeInt != 0 { restTime = String(restTimeInt) }
 
-        
-        
         //        logic to determine contents and format of the cells details
         var activityDetailsString : String = ""
         
@@ -97,21 +96,16 @@ class ActivityCell: UITableViewCell {
         
 //        setting proper ui for interval options
         
-        if let intervals = intervals,
-            let activityTime = activityTime,
-            let restTime = restTime {
+        if let intervals = intervals {
             
-            activityDetailsString = "\(completedIntervals) / \(intervals) Completed \n \(activityTime) On - \(restTime) Off"
+            let activeTimeString = secondsToTimeString(activityTimeInt)
+            let restTimeString = secondsToTimeString(restTimeInt)
+            
+            activityDetailsString = "\(completedIntervals) / \(intervals) Completed \n \(activeTimeString) On - \(restTimeString) Off"
         }
-        
         
         activityDetails.text = activityDetailsString
     }
-
-        
-       
-    
-    
 
     @IBAction func checkButtonPressed(_ sender: Any) {
         
@@ -126,6 +120,13 @@ class ActivityCell: UITableViewCell {
         else {
             checkboxImage.image = UIImage(named: "unchecked_box_icon")
         }
+    }
+    
+    func secondsToTimeString(_ seconds: Int) -> String {
+        let minutesString = String(format: "%02d", seconds / 60)
+        let secondsString = String(format: "%02d", seconds % 60)
+        let timeString = "\(minutesString):\(secondsString)"
+        return timeString
     }
 }
 

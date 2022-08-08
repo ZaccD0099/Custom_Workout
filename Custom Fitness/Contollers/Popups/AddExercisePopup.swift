@@ -31,8 +31,10 @@ class AddExercisePopup: UIViewController {
     @IBOutlet weak var durationTextField: UITextField!
     
     @IBOutlet weak var intervalNumField: UITextField!
-    @IBOutlet weak var activeTimeField: UITextField!
-    @IBOutlet weak var restTimeField: UITextField!
+    @IBOutlet weak var intervalActiveMinField: UITextField!
+    @IBOutlet weak var intervalActiveSecField: UITextField!
+    @IBOutlet weak var intervalRestMinField: UITextField!
+    @IBOutlet weak var intervalRestSecField: UITextField!
     
     @IBOutlet weak var durationFields: UIStackView!
     @IBOutlet weak var setRepsFields: UIStackView!
@@ -94,8 +96,8 @@ class AddExercisePopup: UIViewController {
         newExercise.sets = Int(setsTextField.text!) ?? 0
         newExercise.reps = Int(repsTextField.text!) ?? 0
         newExercise.intervals = Int(intervalNumField.text!) ?? 0
-        newExercise.intervalActiveTime = Float(activeTimeField.text!) ?? 0.0
-        newExercise.intervalRestTime = Float(restTimeField.text!) ?? 0.0
+        newExercise.intervalActiveTime = minutesSecondsToSeconds(intervalActiveMinField.text!, intervalActiveSecField.text!)
+        newExercise.intervalRestTime = minutesSecondsToSeconds(intervalRestMinField.text!, intervalRestSecField.text!)
         newExercise.type = selectedTypeLabel.text
         
         delegate?.addExercise(newExercise)
@@ -127,5 +129,13 @@ class AddExercisePopup: UIViewController {
         default:
             fatalError("could not set exercise type labels")
         }
+    }
+    
+    func minutesSecondsToSeconds(_ minutes : String, _ seconds : String) -> Int {
+        let minutesToSeconds = (Int(minutes) ?? 0) * 60
+        let secondsToInt = Int(seconds) ?? 0
+        let totalSeconds = minutesToSeconds + secondsToInt
+        
+        return totalSeconds
     }
 }
