@@ -524,22 +524,26 @@ extension ExerciseTableViewController : UITableViewDataSource, ActivityCellDeleg
 }
 
 //MARK: - Data Manipulation & Delegate
-extension ExerciseTableViewController : AddExercisePopupProtocol, EditWorkoutPopupDelegate {
+extension ExerciseTableViewController : AddExercisePopupProtocol, EditExercisePopupProtocol {
     
     func getExercise() -> Exercise? {
         return selectedExercise
     }
     
-    func updateExercise(_ saveableExercise: Exercise?) {
-        if let exercise = saveableExercise {
+    func updateExercise(_ selectedExercise : Exercise, _ name : String, _ duration : Int, _ sets : Int, _ reps : Int, _ intervals : Int, _ intervalActiveTime : Int, _ intervalRestTime : Int) {
             do {
                 try realm.write {
-                    realm.add(exercise, update: .modified)
+                    selectedExercise.name = name
+                    selectedExercise.duration = duration
+                    selectedExercise.sets = sets
+                    selectedExercise.reps = reps
+                    selectedExercise.intervals = intervals
+                    selectedExercise.intervalActiveTime = intervalActiveTime
+                    selectedExercise.intervalRestTime = intervalRestTime
                 }
             } catch {
                 print("error saving updating exercise \(error)")
             }
-        }
     }
     
     func loadExercises() {

@@ -9,53 +9,86 @@ import UIKit
 import RealmSwift
 import DropDown
 
-protocol EditWorkoutPopupDelegate {
+protocol EditExercisePopupProtocol {
     func getExercise() -> Exercise?
     func loadExercises()
-    func updateExercise(_ saveableExercise : Exercise?)
+    func updateExercise(_ selectedExercise : Exercise, _ name : String, _ duration : Int, _ sets : Int, _ reps : Int, _ intervals : Int, _ intervalActiveTime : Int, _ intervalRestTime : Int)
 }
 
 class EditExercisePopup: UIViewController {
     
     let realm = try! Realm()
-    
-    var delegate : EditWorkoutPopupDelegate?
-    
+    var delegate : EditExercisePopupProtocol?
     var selectedExercise : Exercise?
     
     @IBOutlet weak var popUpView: UIView!
     @IBOutlet var backgroundView: UIView!
     @IBOutlet weak var nameTextField: UITextField!
-    @IBOutlet weak var durationTextField: UITextField!
+
+    @IBOutlet weak var durationFields: UIStackView!
+    @IBOutlet weak var setRepsFields: UIStackView!
+    @IBOutlet weak var intervalFields: UIStackView!
+    
+    @IBOutlet weak var durationMinField: UITextField!
+    @IBOutlet weak var durationSecField: UITextField!
+
     @IBOutlet weak var setsTextField: UITextField!
     @IBOutlet weak var repsTextField: UITextField!
     
-    //MARK: - dropdown
+    @IBOutlet weak var intervalsField: UITextField!
+    @IBOutlet weak var activeMinField: UITextField!
+    @IBOutlet weak var activeSecField: UITextField!
+    @IBOutlet weak var restMinField: UITextField!
+    @IBOutlet weak var restSecField: UITextField!
     
-
     
+    //MARK: - Dropdown
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         popUpView.layer.cornerRadius = 15.0
         popUpView.layer.borderWidth = 1.0
         popUpView.layer.borderColor = UIColor(named: "custom_dark")?.cgColor
         
         selectedExercise = delegate?.getExercise()
         setTextFields()
+        
+//        for keyboard management (UITextFieldDelegate)
+        self.hideKeyboardWhenTappedAround()
+        nameTextField.delegate = self
+        setsTextField.delegate = self
+        repsTextField.delegate = self
+        durationMinField.delegate = self
+        durationSecField.delegate = self
+        intervalsField.delegate = self
+        activeMinField.delegate = self
+        activeSecField.delegate = self
+        restMinField.delegate = self
+        restSecField.delegate = self
+        
+//        setting numbers keypad for necessary text fields
+        setsTextField.keyboardType = .numberPad
+        repsTextField.keyboardType = .numberPad
+        durationMinField.keyboardType = .numberPad
+        durationSecField.keyboardType = .numberPad
+        intervalsField.keyboardType = .numberPad
+        activeMinField.keyboardType = .numberPad
+        activeSecField.keyboardType = .numberPad
+        restMinField.keyboardType = .numberPad
+        restSecField.keyboardType = .numberPad
     }
-    
-
-    
     
     @IBAction func saveChangesPressed(_ sender: UIButton) {
         if let selectedExercise = selectedExercise {
-            selectedExercise.name = nameTextField.text ?? ""
-            selectedExercise.duration = Int(durationTextField.text!) ?? 0
-            selectedExercise.sets = Int(setsTextField.text!) ?? 0
-            selectedExercise.reps = Int(repsTextField.text!) ?? 0
+            let name = nameTextField.text ?? ""
+            let duration = minutesSecondsToSeconds(durationMinField.text!, durationSecField.text!)
+            let sets = Int(setsTextField.text!) ?? 0
+            let reps = Int(repsTextField.text!) ?? 0
+            let intervals = Int(intervalsField.text!) ?? 0
+            let intervalActiveTime = minutesSecondsToSeconds(activeMinField.text!, activeMinField.text!)
+            let intervalRestTime = minutesSecondsToSeconds(restMinField.text!, restSecField.text!)
             
-            delegate?.updateExercise(selectedExercise)
+            delegate?.updateExercise(selectedExercise, name, duration, sets, reps, intervals, intervalActiveTime, intervalRestTime)
         }
         
         dismiss(animated: true) {
@@ -63,27 +96,85 @@ class EditExercisePopup: UIViewController {
         }
     }
     
-    
     func setTextFields() {
         if let selectedExercise = selectedExercise {
+            
+            let activeTimes = secondsToMinutesSeconds(selectedExercise.intervalActiveTime)
+            let restTimes = secondsToMinutesSeconds(selectedExercise.intervalRestTime)
+            let durationTimes = secondsToMinutesSeconds(selectedExercise.duration)
+            
             nameTextField.text = selectedExercise.name
-            durationTextField.text = String(selectedExercise.duration)
-            setsTextField.text = String(selectedExercise.sets)
-            repsTextField.text = String(selectedExercise.reps)
+            
+            switch selectedExercise.type {
+            case ExerciseType.setsReps.rawValue:
+                setsTextField.text = String(selectedExercise.sets)
+                repsTextField.text = String(selectedExercise.reps)
+                durationFields.isHidden = true
+                intervalFields.isHidden = true
+                setRepsFields.isHidden = false
+            case ExerciseType.singleDuration.rawValue:
+                durationMinField.text = String(durationTimes.0)
+                durationSecField.text = String(durationTimes.1)
+                durationFields.isHidden = false
+                intervalFields.isHidden = true
+                setRepsFields.isHidden = true
+            case ExerciseType.interval.rawValue:
+                activeMinField.text = String(activeTimes.0)
+                activeSecField.text = String(activeTimes.1)
+                restMinField.text = String(restTimes.0)
+                restSecField.text = String(restTimes.1)
+                durationFields.isHidden = true
+                intervalFields.isHidden = false
+                setRepsFields.isHidden = true
+            case "hideAll":
+                durationFields.isHidden = true
+                intervalFields.isHidden = true
+                setRepsFields.isHidden = true
+            default:
+                fatalError("could not set exercise type labels")
+            }
         }
     }
-
+    
+    func minutesSecondsToSeconds(_ minutes : String, _ seconds : String) -> Int {
+        let minutesToSeconds = (Int(minutes) ?? 0) * 60
+        let secondsToInt = Int(seconds) ?? 0
+        let totalSeconds = minutesToSeconds + secondsToInt
+        
+        return totalSeconds
+    }
+    
+    func secondsToMinutesSeconds(_ seconds : Int) -> (Int, Int) {
+        return (seconds / 60, seconds % 60)
+    }
 
 //    dismisses popup when press out main view
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?)
-        {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
             let touch = touches.first
             if touch?.view == self.backgroundView {
                 self.dismiss(animated: true, completion: nil)
             }
         }
+//MARK: - keyboard Mgmt Methods
     
+    deinit {
+      NotificationCenter.default.removeObserver(self)
+    }
     
+    func hideKeyboardWhenTappedAround() {
+            let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+            view.addGestureRecognizer(tap)
+        }
+
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+        }
+}
+
+extension EditExercisePopup : UITextFieldDelegate {
     
-    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
 }

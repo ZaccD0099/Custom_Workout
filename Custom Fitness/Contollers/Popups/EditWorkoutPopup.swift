@@ -13,6 +13,7 @@ protocol EditWorkoutPopupProtocol {
     func removeWorkout(_ selectedWorkout : Workout?)
     func saveWorkout(_ selectedWorkout : Workout?)
     func loadWorkouts()
+    func updateWorkout(_ selectedWorkout : Workout, _ title : String, _ type : String, _ duration : Int)
 }
 
 class EditWorkoutPopup: UIViewController {
@@ -26,6 +27,7 @@ class EditWorkoutPopup: UIViewController {
     var realm = try! Realm()
     var delegate : EditWorkoutPopupProtocol?
     var selectedWorkout : Workout?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,6 +43,14 @@ class EditWorkoutPopup: UIViewController {
             typeTextField.text = workout.type
             durationTextField.text = String(workout.duration)
         }
+        
+//        for Keyboard Mgmt (UITextFieldDelegate)
+        self.hideKeyboardWhenTappedAround()
+        nameTextField.delegate = self
+        typeTextField.delegate = self
+        durationTextField.delegate = self
+        
+        durationTextField.keyboardType = .numberPad
     }
     
 //    dismissing popup on touch outside popup
@@ -54,13 +64,13 @@ class EditWorkoutPopup: UIViewController {
     
     @IBAction func saveChangedButtonPressed(_ sender: UIButton) {
         
-        if let workout = selectedWorkout {
+        if let selectedWorkout = selectedWorkout {
 
-            workout.title = nameTextField.text ?? ""
-            workout.type = typeTextField.text ?? ""
-            workout.duration = Int(durationTextField.text!) ?? 0
+            let title = nameTextField.text ?? ""
+            let type = typeTextField.text ?? ""
+            let duration = Int(durationTextField.text!) ?? 0
             
-            delegate?.saveWorkout(workout)
+            delegate?.updateWorkout(selectedWorkout, title, type, duration)
         }
         
         returnToWorkouts()
@@ -78,6 +88,23 @@ class EditWorkoutPopup: UIViewController {
             self.delegate?.loadWorkouts()
         }
     }
-    
-    
+
+    func hideKeyboardWhenTappedAround() {
+            let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+            view.addGestureRecognizer(tap)
+        }
+
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+        }
 }
+
+extension EditWorkoutPopup : UITextFieldDelegate {
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+}
+
+

@@ -13,7 +13,7 @@ protocol AddWorkoutPopupProtocol {
     func loadWorkouts()
 }
 
-class AddWorkoutPopup: UIViewController {
+class AddWorkoutPopup: UIViewController{
     
     let realm = try! Realm()
 
@@ -31,6 +31,15 @@ class AddWorkoutPopup: UIViewController {
         popUpView.layer.cornerRadius = 15.0
         popUpView.layer.borderWidth = 1.0
         popUpView.layer.borderColor = UIColor(named: "custom_dark")?.cgColor
+        
+        self.hideKeyboardWhenTappedAround()
+        
+//        for Keyboard Mgmt (UITextFieldDelegate)
+        nameTextField.delegate = self
+        typeTextField.delegate = self
+        durationTextField.delegate = self
+        
+        durationTextField.keyboardType = .numberPad
     }
     
 //    get the first touch and if it is the background it will dismiss this view.
@@ -65,5 +74,30 @@ class AddWorkoutPopup: UIViewController {
         
         delegate?.saveWorkout(newWorkout)
     }
+
+
+//MARK: - Keyboard Management
+func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tap)
+    }
+
+@objc func dismissKeyboard() {
+    view.endEditing(true)
+    }
 }
+
+extension AddWorkoutPopup : UITextFieldDelegate {
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    
+}
+
+
+
 

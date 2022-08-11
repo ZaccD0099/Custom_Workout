@@ -162,6 +162,19 @@ extension WorkoutCollectionViewController : EditWorkoutPopupProtocol, AddWorkout
         }
     }
     
+    func updateWorkout(_ selectedWorkout : Workout, _ title : String, _ type : String, _ duration : Int) {
+        do {
+            try realm.write({
+                selectedWorkout.title = title
+                selectedWorkout.type = type
+                selectedWorkout.duration = duration
+            })
+        }
+        catch{
+            print("error updating workout \(error)")
+        }
+    }
+    
     func removeWorkout(_ selectedWorkout : Workout?) {
         if let removableWorkout = selectedWorkout {
             do {

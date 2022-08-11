@@ -73,6 +73,32 @@ class AddExercisePopup: UIViewController {
         
 //        removes all ui specific to an exercise type until it is set
         setupTypeView("hideAll")
+        
+//        for keyboard management (UITextFieldDelegate)
+        self.hideKeyboardWhenTappedAround()
+        
+        nameTextField.delegate = self
+        setsTextField.delegate = self
+        repsTextField.delegate = self
+        durationMinTextField.delegate = self
+        durationSecTextField.delegate = self
+        intervalNumField.delegate = self
+        intervalActiveMinField.delegate = self
+        intervalActiveSecField.delegate = self
+        intervalRestMinField.delegate = self
+        intervalRestSecField.delegate = self
+        
+        
+//        setting numbers keypad for necessary text fields
+        setsTextField.keyboardType = .numberPad
+        repsTextField.keyboardType = .numberPad
+        durationMinTextField.keyboardType = .numberPad
+        durationSecTextField.keyboardType = .numberPad
+        intervalNumField.keyboardType = .numberPad
+        intervalActiveMinField.keyboardType = .numberPad
+        intervalActiveSecField.keyboardType = .numberPad
+        intervalRestMinField.keyboardType = .numberPad
+        intervalRestSecField.keyboardType = .numberPad
     }
     
 
@@ -147,5 +173,22 @@ class AddExercisePopup: UIViewController {
         let totalSeconds = minutesToSeconds + secondsToInt
         
         return totalSeconds
+    }
+
+    func hideKeyboardWhenTappedAround() {
+            let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+            view.addGestureRecognizer(tap)
+        }
+
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+        }
+}
+
+extension AddExercisePopup : UITextFieldDelegate {
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
