@@ -553,15 +553,29 @@
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
-                                                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="ex: 90 minutes" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="C0j-kN-ACf">
+                                                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="F1l-6v-k1F">
                                                                         <rect key="frame" x="0.0" y="36.5" width="160" height="40"/>
+                                                                        <subviews>
+                                                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="min" borderStyle="roundedRect" placeholder="min" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="C0j-kN-ACf">
+                                                                                <rect key="frame" x="0.0" y="0.0" width="72.5" height="40"/>
+                                                                                <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                                                <textInputTraits key="textInputTraits"/>
+                                                                            </textField>
+                                                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="sec" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="s7P-dh-EJz">
+                                                                                <rect key="frame" x="87.5" y="0.0" width="72.5" height="40"/>
+                                                                                <constraints>
+                                                                                    <constraint firstAttribute="height" constant="40" id="q57-7o-Qau"/>
+                                                                                </constraints>
+                                                                                <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                                                <textInputTraits key="textInputTraits"/>
+                                                                            </textField>
+                                                                        </subviews>
                                                                         <constraints>
-                                                                            <constraint firstAttribute="height" constant="40" id="nvs-VA-BYy"/>
-                                                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="160" id="xL1-Zv-qOh"/>
+                                                                            <constraint firstAttribute="width" constant="160" id="gkh-uq-1GV"/>
                                                                         </constraints>
-                                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                                        <textInputTraits key="textInputTraits"/>
-                                                                    </textField>
+                                                                    </stackView>
                                                                 </subviews>
                                                             </stackView>
                                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="4hS-mS-dN7">
@@ -693,7 +707,8 @@
                     <connections>
                         <outlet property="backgroundView" destination="caE-pg-oh9" id="Tdo-eL-Mim"/>
                         <outlet property="durationFields" destination="Khx-Cc-klJ" id="t3R-ws-GAd"/>
-                        <outlet property="durationTextField" destination="C0j-kN-ACf" id="afA-v9-kUu"/>
+                        <outlet property="durationMinTextField" destination="C0j-kN-ACf" id="afA-v9-kUu"/>
+                        <outlet property="durationSecTextField" destination="s7P-dh-EJz" id="mH2-eB-yR2"/>
                         <outlet property="exerciseTypeDropdown" destination="YR6-h7-umM" id="ngF-bd-PXy"/>
                         <outlet property="intervalActiveMinField" destination="brE-xd-6Wx" id="38P-sj-4dQ"/>
                         <outlet property="intervalActiveSecField" destination="fbq-oQ-YSw" id="gOg-Fb-4bJ"/>

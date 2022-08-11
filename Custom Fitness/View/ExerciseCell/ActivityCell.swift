@@ -25,7 +25,7 @@ class ActivityCell: UITableViewCell {
     var cellExercise : Exercise?
     weak var delegate : ActivityCellDelegate?
     
-    var completedIntervals = 0
+
     //    checkbox logic
     let checkedImage = UIImage(named: "checked_box_icon")! as UIImage
     let uncheckedImage = UIImage(named: "unchecked_box_icon")! as UIImage
@@ -56,53 +56,28 @@ class ActivityCell: UITableViewCell {
 
         // Configure the view for the selected state
     }
-
     
-    func addCellDetails(_ durationInt: Int, _ setsInt: Int, _ repsInt : Int, _ intervalsInt : Int, _ activityTimeInt: Int, _ restTimeInt: Int, _ completedIntervalsInt : Int) {
+    func addSingleDurationDetails(_ duration: Int) {
+        let timeString = secondsToTimeString(duration)
         
-        //        setting strings for the functions optional inputs to return correct string in cell
-        var duration : String?
-        var sets : String?
-        var reps : String?
-        var intervals : String?
-//        var activityTime : String?
-//        var restTime : String?
-        let completedIntervals : String = String(completedIntervalsInt)
+        let activityDetailsString = "Time: \(timeString)"
         
-        if durationInt != 0 { duration = String(durationInt) }
-        if setsInt != 0 { sets = String(setsInt) }
-        if repsInt != 0 { reps = String(repsInt) }
-        if intervalsInt != 0 { intervals = String(intervalsInt) }
-//        if activityTimeInt != 0 { activityTime = String(activityTimeInt) }
-//        if restTimeInt != 0 { restTime = String(restTimeInt) }
-
-        //        logic to determine contents and format of the cells details
-        var activityDetailsString : String = ""
+        activityDetails.text = activityDetailsString
+    }
+    
+    func addIntervalDetails(_ intervals: Int, _ activityTime: Int, _ restTime: Int, _ completedIntervals : Int) {
+        
+        let activeTimeString = secondsToTimeString(activityTime)
+        let restTimeString = secondsToTimeString(restTime)
+        
+        let activityDetailsString = "\(completedIntervals) / \(intervals) Completed \n \(activeTimeString) On - \(restTimeString) Off"
         
         
-        //         setting proper string for sets and reps
-        if let sets = sets,
-           let reps = reps{
-            activityDetailsString = "Sets: \(sets) x Reps: \(reps)"
-        }
-        else if let reps = reps {
-            activityDetailsString = "Reps: \(reps)"
-        }
-        
-        //        setting the final string depending on existance of duration and set reps
-        if let duration = duration {
-            activityDetailsString = "Time: \(duration)"
-        }
-        
-//        setting proper ui for interval options
-        
-        if let intervals = intervals {
-            
-            let activeTimeString = secondsToTimeString(activityTimeInt)
-            let restTimeString = secondsToTimeString(restTimeInt)
-            
-            activityDetailsString = "\(completedIntervals) / \(intervals) Completed \n \(activeTimeString) On - \(restTimeString) Off"
-        }
+        activityDetails.text = activityDetailsString
+    }
+    
+    func addSetRepsDetails(_ sets: Int, _ reps : Int) {
+        let activityDetailsString = "Sets: \(sets) x Reps: \(reps)"
         
         activityDetails.text = activityDetailsString
     }
@@ -128,6 +103,10 @@ class ActivityCell: UITableViewCell {
         let timeString = "\(minutesString):\(secondsString)"
         return timeString
     }
+    
+    
+    
+ 
 }
 
 

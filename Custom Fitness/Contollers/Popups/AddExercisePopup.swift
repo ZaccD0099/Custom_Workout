@@ -28,7 +28,8 @@ class AddExercisePopup: UIViewController {
     @IBOutlet weak var setsTextField: UITextField!
     @IBOutlet weak var repsTextField: UITextField!
     
-    @IBOutlet weak var durationTextField: UITextField!
+    @IBOutlet weak var durationMinTextField: UITextField!
+    @IBOutlet weak var durationSecTextField: UITextField!
     
     @IBOutlet weak var intervalNumField: UITextField!
     @IBOutlet weak var intervalActiveMinField: UITextField!
@@ -92,13 +93,22 @@ class AddExercisePopup: UIViewController {
         
         let newExercise = Exercise()
         newExercise.name = nameTextField.text ?? ""
-        newExercise.duration = Int(durationTextField.text!) ?? 0
+        newExercise.duration = minutesSecondsToSeconds(durationMinTextField.text!, durationSecTextField.text!)
         newExercise.sets = Int(setsTextField.text!) ?? 0
         newExercise.reps = Int(repsTextField.text!) ?? 0
         newExercise.intervals = Int(intervalNumField.text!) ?? 0
         newExercise.intervalActiveTime = minutesSecondsToSeconds(intervalActiveMinField.text!, intervalActiveSecField.text!)
         newExercise.intervalRestTime = minutesSecondsToSeconds(intervalRestMinField.text!, intervalRestSecField.text!)
-        newExercise.type = selectedTypeLabel.text
+        
+        if let typeText = selectedTypeLabel.text {
+//            not sure how to replace the placeholder here so making logic conform to it: "Select Type" is placeholder
+            if typeText != "Select Type"{
+                newExercise.type = typeText
+            }
+            else {
+                newExercise.type = nil
+            }
+        }
         
         delegate?.addExercise(newExercise)
         

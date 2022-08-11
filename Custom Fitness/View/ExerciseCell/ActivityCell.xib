@@ -29,8 +29,8 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="test text goes here" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Zol-LW-obi">
-                                <rect key="frame" x="100" y="50" width="150" height="31"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Zol-LW-obi">
+                                <rect key="frame" x="100" y="50" width="335" height="31"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="150" id="m4n-0s-XRR"/>
                                 </constraints>
@@ -39,10 +39,10 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="skinny_hamburger" adjustsImageSizeForAccessibilityContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zF9-i3-6xs">
-                                <rect key="frame" x="432.5" y="33" width="47.5" height="30"/>
+                                <rect key="frame" x="450" y="38" width="30" height="20"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="30" id="7zw-2o-w6I"/>
-                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="20" id="Auo-gE-rEG"/>
+                                    <constraint firstAttribute="width" constant="30" id="7zw-2o-w6I"/>
+                                    <constraint firstAttribute="height" constant="20" id="Auo-gE-rEG"/>
                                 </constraints>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6SG-8H-DlD">
@@ -80,6 +80,7 @@
                         <constraints>
                             <constraint firstItem="6SG-8H-DlD" firstAttribute="centerY" secondItem="m8Q-K1-8y9" secondAttribute="centerY" id="Dsk-bC-QHn"/>
                             <constraint firstItem="Zol-LW-obi" firstAttribute="leading" secondItem="m8Q-K1-8y9" secondAttribute="leading" constant="100" id="FE1-Ad-HX3"/>
+                            <constraint firstItem="zF9-i3-6xs" firstAttribute="leading" secondItem="Zol-LW-obi" secondAttribute="trailing" constant="15" id="GAC-hD-d49"/>
                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="95" id="JMk-6O-jGv"/>
                             <constraint firstItem="Zol-LW-obi" firstAttribute="top" secondItem="m8Q-K1-8y9" secondAttribute="top" constant="50" id="R6C-ea-OSM"/>
                             <constraint firstAttribute="bottom" secondItem="Zol-LW-obi" secondAttribute="bottom" constant="15" id="dMD-E2-fTh"/>

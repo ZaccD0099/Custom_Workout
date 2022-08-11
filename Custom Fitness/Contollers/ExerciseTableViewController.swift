@@ -7,6 +7,9 @@
 
 import UIKit
 import RealmSwift
+import AVFoundation
+
+
 
 class ExerciseTableViewController: UIViewController {
     
@@ -20,6 +23,7 @@ class ExerciseTableViewController: UIViewController {
     var selectedWorkout : Workout?
     var selectedExercise : Exercise?
     
+    var player: AVAudioPlayer?
     let cellNibName = "ActivityCell"
     let cellReuseID = "activityCell"
     
@@ -29,12 +33,24 @@ class ExerciseTableViewController: UIViewController {
     
     var workoutPlaying : Bool = false
     var workoutCount : Int = 0
-    var workoutTimer : Timer = Timer()
+    weak var workoutTimer : Timer?
     
-    var currentExerciseInterval : Float = 0.0
+//    var currentExerciseInterval : Float = 0.0
     var currentExerciseLabel : UILabel?
-    var currentExerciseCount : Int = 0
-    var currentExerciseTimer : Timer = Timer()
+//    var currentExerciseCount : Int = 0
+//    weak var currentExerciseTimer : Timer?
+    
+//    for cell timer
+    var currentExerciseCell : ActivityCell?
+    weak var cellTimer : Timer?
+    var exerciseCount : Int = 0
+    var completedIntervals = 0
+    var activeTime = true
+    var currentExc : Exercise?
+    
+    private var currentIntervalToComplete = 0
+    private var currentActiveTime = 0
+    private var currentRestTime = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,6 +73,9 @@ class ExerciseTableViewController: UIViewController {
         tableView.dragInteractionEnabled = true
         
         if selectedWorkout != nil {
+            
+            
+            
             loadExercises()
         }
     }
@@ -71,7 +90,7 @@ class ExerciseTableViewController: UIViewController {
             playPauseButton.setBackgroundImage(UIImage(named: "pause_icon_dark"), for: .normal)
         }
         else {
-            workoutTimer.invalidate()
+            workoutTimer?.invalidate()
             playPauseButton.setBackgroundImage(UIImage(named: "play_icon_dark"), for: .normal)
         }
     }
@@ -84,7 +103,7 @@ class ExerciseTableViewController: UIViewController {
 //            resets overall workout time
             self.workoutCount = 0
             let time = self.secondsToHoursMinutesSeconds(self.workoutCount)
-            let timeString = self.makeTimeString(time.0, time.1, time.2)
+            let timeString = self.makeLongTimeString(time.0, time.1, time.2)
             self.workoutTime.text = timeString
             
 //            reseting all exercises in the workout to incomplete status
@@ -115,14 +134,13 @@ class ExerciseTableViewController: UIViewController {
         alert.addAction(resetAction)
         alert.addAction(cancelAction)
         present(alert, animated: true, completion: nil)
-        
     }
     
     
     @objc func workoutCounter() -> Void {
         self.workoutCount += 1
         let time = secondsToHoursMinutesSeconds(workoutCount)
-        let timeString = makeTimeString(time.0, time.1, time.2)
+        let timeString = makeLongTimeString(time.0, time.1, time.2)
         
         workoutTime.text = timeString
     }
@@ -131,7 +149,21 @@ class ExerciseTableViewController: UIViewController {
         return ( seconds / 3600, (seconds % 3600) / 60, (seconds % 3600) % 60 )
     }
     
-    func makeTimeString (_ hours : Int, _ minutes : Int, _ seconds : Int) -> String {
+    func secondsToMinutesSeconds(_ seconds : Int) -> (Int, Int) {
+        return ( seconds / 60, seconds % 60 )
+    }
+    
+    func makeShortTimeString (_ minutes : Int = 0, _ seconds : Int = 0) -> String {
+        var timeString = ""
+        
+        timeString += String(format: "%02d", minutes)
+        timeString += ":"
+        timeString += String(format: "%02d", seconds)
+        
+        return timeString
+    }
+    
+    func makeLongTimeString (_ hours : Int, _ minutes : Int, _ seconds : Int) -> String {
         var timeString : String = ""
         
         timeString += String(format: "%02d", hours)
@@ -159,6 +191,31 @@ class ExerciseTableViewController: UIViewController {
         if (segue.identifier == "goToEditExercise") {
             let vc = segue.destination as! EditExercisePopup
             vc.delegate = self
+        }
+    }
+    
+    
+    //MARK: - play sound method
+    
+    func playSound(_ soundName: String) {
+        guard let url = Bundle.main.url(forResource: soundName, withExtension: "wav") else { return }
+
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+
+            /* The following line is required for the player to work on iOS 11. Change the file type accordingly*/
+            player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+
+            /* iOS 10 and earlier require the following line:
+            player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileTypeMPEGLayer3) */
+
+            guard let player = player else { return }
+
+            player.play()
+
+        } catch let error {
+            print(error.localizedDescription)
         }
     }
 }
@@ -204,6 +261,130 @@ extension ExerciseTableViewController : UITableViewDelegate, UITableViewDragDele
         
             }
         }
+    }
+    
+    //MARK: - Cell Timer Methods
+    
+    func startIntervalTimer() {
+        cellTimer?.invalidate()
+        cellTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(exerciseIntervalCounter), userInfo: nil, repeats: true)
+    }
+    
+    func startSingleDurationTimer() {
+        cellTimer?.invalidate()
+        cellTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(exerciseDurationCounter), userInfo: nil, repeats: true)
+    }
+    
+    @objc func exerciseIntervalCounter() {
+        exerciseCount += 1
+        
+        let times = secondsToMinutesSeconds(exerciseCount)
+        let timeString = makeShortTimeString(times.0, times.1)
+        
+        let restTime = secondsToMinutesSeconds(currentRestTime)
+        let restTimeString = makeShortTimeString(restTime.0, restTime.1)
+        
+        let excTime = secondsToMinutesSeconds(currentActiveTime)
+        let excTimeString = makeShortTimeString(excTime.0, excTime.1)
+        
+        let completedIntervalsString = "\(completedIntervals)/\(currentIntervalToComplete) intervals completed"
+        
+        if let currentExerciseCell = currentExerciseCell {
+            if activeTime {
+                let fullString = "\(timeString) On - \(restTimeString) Off \n\(completedIntervalsString)"
+                currentExerciseCell.activityDetails.text = fullString
+                
+                if exerciseCount == currentActiveTime {
+                    exerciseCount = 0
+                    activeTime = false
+                    playSound(K.soundEffects.startSoundOne)
+                }
+            }
+            else if activeTime == false {
+                let fullString = "\(excTimeString) On - \(timeString) Off \n\(completedIntervalsString)"
+                currentExerciseCell.activityDetails.text = fullString
+                
+                if exerciseCount == currentRestTime {
+                    exerciseCount = 0
+                    activeTime = true
+                    completedIntervals += 1
+                    playSound(K.soundEffects.endSoundOne)
+                }
+            }
+        }
+        
+        if completedIntervals == currentIntervalToComplete {
+            completedIntervals = 0
+            
+            if let currentExc = currentExc {
+                do {
+                    try realm.write({
+                        currentExc.completed = true
+                        currentExc.current = false
+                    })
+                } catch {
+                    print("error completing interval exercise \(error)")
+                }
+                
+            }
+            currentExerciseSet = false
+            loadExercises()
+            resetCounterAndVariables()
+            
+        }
+        
+
+    }
+    
+//    counting down in this one, different from above that is counting up - to test and see which is better
+    @objc func exerciseDurationCounter() {
+        exerciseCount += 1
+        
+        let timeLeft = (currentActiveTime - exerciseCount)
+        
+        print("time left: \(timeLeft)")
+        print("exercise count: \(exerciseCount)")
+        if timeLeft >= 0 {
+            let timesLeft = secondsToMinutesSeconds(timeLeft)
+            let timeLeftString = makeShortTimeString(timesLeft.0, timesLeft.1)
+            
+            let totalTime = secondsToMinutesSeconds(currentActiveTime)
+            let totalTimeString = makeShortTimeString(totalTime.0, totalTime.1)
+            
+            let fullString = "\(timeLeftString)/\(totalTimeString)"
+            
+            if let currentExerciseCell = currentExerciseCell {
+                currentExerciseCell.activityDetails.text = String(fullString)
+            }
+        }
+        
+        else {
+            if let currentExc = currentExc {
+                do {
+                    try realm.write({
+                        currentExc.completed = true
+                        currentExc.current = false
+                    })
+                } catch {
+                    print("error completing interval exercise \(error)")
+                }
+            }
+            playSound(K.soundEffects.startSoundOne)
+            currentExerciseSet = false
+            loadExercises()
+            resetCounterAndVariables()
+        }
+
+    }
+    
+    func resetCounterAndVariables() {
+        cellTimer?.invalidate()
+        completedIntervals = 0
+        activeTime = true
+        currentIntervalToComplete = 0
+        currentActiveTime = 0
+        currentRestTime = 0
+        exerciseCount = 0
     }
 }
 
@@ -271,16 +452,53 @@ extension ExerciseTableViewController : UITableViewDataSource, ActivityCellDeleg
             cell.setCheckButton(currentExercise.completed)
             cell.setCellUI()
             cell.activityTitle.text = currentExercise.name
-            cell.addCellDetails(currentExercise.duration, currentExercise.sets, currentExercise.reps, currentExercise.intervals, currentExercise.intervalActiveTime, currentExercise.intervalRestTime, currentExercise.completedIntervals)
             cell.delegate = self
             
-            if currentExercise.current {
-                currentExerciseIndex = indexPath
+            if let exerciseType = currentExercise.type {
+                if currentExercise.current {
+//                    index used for auto scrolling
+                    currentExerciseIndex = indexPath
+                    currentExc = currentExercise
+                    currentExerciseCell = cell
+                    
+                    if currentExercise.type == ExerciseType.interval.rawValue {
+                        currentActiveTime = currentExercise.intervalActiveTime
+                        currentRestTime = currentExercise.intervalRestTime
+                        currentIntervalToComplete = currentExercise.intervals
+                        print("starting interval timer")
+                        startIntervalTimer()
+                    }
+                        
+                    else if currentExercise.type == ExerciseType.singleDuration.rawValue {
+                        currentActiveTime = currentExercise.duration
+                        print("set duration of current cell to: \(currentActiveTime)")
+                        startSingleDurationTimer()
+                    }
+                    
+                    else if currentExercise.type == ExerciseType.setsReps.rawValue {
+                        cell.addSetRepsDetails(currentExercise.sets, currentExercise.reps)
+                    }
+                }
+                
+                else {
+                    switch exerciseType {
+                    case ExerciseType.interval.rawValue:
+                        cell.addIntervalDetails(currentExercise.intervals, currentExercise.intervalActiveTime, currentExercise.intervalRestTime, completedIntervals)
+                    case ExerciseType.setsReps.rawValue:
+                        cell.addSetRepsDetails(currentExercise.sets, currentExercise.reps)
+                    case ExerciseType.singleDuration.rawValue:
+                        cell.addSingleDurationDetails(currentExercise.duration)
+                    default:
+                        cell.activityDetails.text = ""
+                    }
+                }
+            }
+            else {
+                cell.activityDetails.text = ""
             }
         }
         return cell
     }
-    
     
     
     func tappedCheckButton(_ cell: ActivityCell, _ exercise: Exercise?) {
@@ -292,13 +510,13 @@ extension ExerciseTableViewController : UITableViewDataSource, ActivityCellDeleg
                     if exercise.current && exercise.completed {
                         exercise.current = false
                         currentExerciseSet = false
+                        resetCounterAndVariables()
+                        currentExerciseCell = nil
                     }
                 })
             } catch {
                 print("error setting exercise complete \(error)")
             }
-//            cell.setCheckButton(exercise.completed)
-//            cell.setCellUI()
             
             loadExercises()
         }
@@ -371,10 +589,10 @@ extension ExerciseTableViewController : AddExercisePopupProtocol, EditWorkoutPop
                     } catch {
                         print("error setting current exercise \(error)")
                     }
-                    
                     return
                 }
             }
+//            there is neither a current exercise set or an incomplete exercise to set as current, meaning all exercises are completed
             completedExercise = true
         }
     }

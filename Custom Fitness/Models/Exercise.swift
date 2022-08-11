@@ -18,7 +18,6 @@ class Exercise : Object {
     @Persisted var intervals : Int = 0
     @Persisted var intervalActiveTime : Int = 0
     @Persisted var intervalRestTime : Int = 0
-    @Persisted var completedIntervals : Int = 0
     @Persisted var completed : Bool = false
     @Persisted var current : Bool = false
     @Persisted var order : Int = 0
