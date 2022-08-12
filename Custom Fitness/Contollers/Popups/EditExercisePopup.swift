@@ -119,6 +119,8 @@ class EditExercisePopup: UIViewController {
                 intervalFields.isHidden = true
                 setRepsFields.isHidden = true
             case ExerciseType.interval.rawValue:
+                
+                intervalsField.text = String(selectedExercise.intervals)
                 activeMinField.text = String(activeTimes.0)
                 activeSecField.text = String(activeTimes.1)
                 restMinField.text = String(restTimes.0)

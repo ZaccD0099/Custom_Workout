@@ -73,9 +73,6 @@ class ExerciseTableViewController: UIViewController {
         tableView.dragInteractionEnabled = true
         
         if selectedWorkout != nil {
-            
-            
-            
             loadExercises()
         }
     }
@@ -88,9 +85,19 @@ class ExerciseTableViewController: UIViewController {
         if workoutPlaying {
             workoutTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(workoutCounter), userInfo: nil, repeats: true)
             playPauseButton.setBackgroundImage(UIImage(named: "pause_icon_dark"), for: .normal)
+            
+            if let currentExc = currentExc {
+                if currentExc.type == ExerciseType.singleDuration.rawValue {
+                    startSingleDurationTimer()
+                }
+                else if currentExc.type == ExerciseType.interval.rawValue {
+                    startIntervalTimer()
+                }
+            }
         }
         else {
             workoutTimer?.invalidate()
+            cellTimer?.invalidate()
             playPauseButton.setBackgroundImage(UIImage(named: "play_icon_dark"), for: .normal)
         }
     }
@@ -325,15 +332,11 @@ extension ExerciseTableViewController : UITableViewDelegate, UITableViewDragDele
                 } catch {
                     print("error completing interval exercise \(error)")
                 }
-                
             }
             currentExerciseSet = false
             loadExercises()
             resetCounterAndVariables()
-            
         }
-        
-
     }
     
 //    counting down in this one, different from above that is counting up - to test and see which is better
@@ -358,7 +361,7 @@ extension ExerciseTableViewController : UITableViewDelegate, UITableViewDragDele
             }
         }
         
-        else {
+        else if timeLeft < 0 {
             if let currentExc = currentExc {
                 do {
                     try realm.write({
@@ -374,7 +377,6 @@ extension ExerciseTableViewController : UITableViewDelegate, UITableViewDragDele
             loadExercises()
             resetCounterAndVariables()
         }
-
     }
     
     func resetCounterAndVariables() {
@@ -466,13 +468,17 @@ extension ExerciseTableViewController : UITableViewDataSource, ActivityCellDeleg
                         currentRestTime = currentExercise.intervalRestTime
                         currentIntervalToComplete = currentExercise.intervals
                         print("starting interval timer")
-                        startIntervalTimer()
+                        if workoutPlaying {
+                            startIntervalTimer()
+                        }
                     }
                         
                     else if currentExercise.type == ExerciseType.singleDuration.rawValue {
                         currentActiveTime = currentExercise.duration
                         print("set duration of current cell to: \(currentActiveTime)")
-                        startSingleDurationTimer()
+                        if workoutPlaying {
+                            startSingleDurationTimer()
+                        }
                     }
                     
                     else if currentExercise.type == ExerciseType.setsReps.rawValue {
@@ -598,6 +604,9 @@ extension ExerciseTableViewController : AddExercisePopupProtocol, EditExercisePo
             }
 //            there is neither a current exercise set or an incomplete exercise to set as current, meaning all exercises are completed
             completedExercise = true
+            workoutPlaying = false
+            workoutTimer?.invalidate()
+            playPauseButton.setBackgroundImage(UIImage(named: "play_icon_dark"), for: .normal)
         }
     }
 }
