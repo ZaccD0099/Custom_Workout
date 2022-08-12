@@ -70,7 +70,7 @@ class ActivityCell: UITableViewCell {
         let activeTimeString = secondsToTimeString(activityTime)
         let restTimeString = secondsToTimeString(restTime)
         
-        let activityDetailsString = "\(completedIntervals) / \(intervals) Completed \n \(activeTimeString) On - \(restTimeString) Off"
+        let activityDetailsString = "\(completedIntervals) / \(intervals) Completed \n\(activeTimeString) On - \(restTimeString) Off"
         
         
         activityDetails.text = activityDetailsString
