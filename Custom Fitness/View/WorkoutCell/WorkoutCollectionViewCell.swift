@@ -33,7 +33,7 @@ class WorkoutCollectionViewCell: UICollectionViewCell {
         self.mainView.layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: 30.0).cgPath
         
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(pullEditWorkout))
-        longPress.minimumPressDuration = 1
+        longPress.minimumPressDuration = 0.75
         
         self.mainView.addGestureRecognizer(longPress)
         

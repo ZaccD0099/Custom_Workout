@@ -17,6 +17,7 @@
 		923CFCF028A48C410044E011 /* start_sound_2beep.wav in Resources */ = {isa = PBXBuildFile; fileRef = 923CFCED28A48C410044E011 /* start_sound_2beep.wav */; };
 		923CFCF128A48C410044E011 /* start_sound_3beep.wav in Resources */ = {isa = PBXBuildFile; fileRef = 923CFCEE28A48C410044E011 /* start_sound_3beep.wav */; };
 		923CFCF328A48C640044E011 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923CFCF228A48C640044E011 /* Constants.swift */; };
+		923CFCF928A6B4CE0044E011 /* UIResponder+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923CFCF828A6B4CE0044E011 /* UIResponder+Utils.swift */; };
 		92419D782891AE6300D99AF3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92419D772891AE6300D99AF3 /* AppDelegate.swift */; };
 		92419D7A2891AE6300D99AF3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92419D792891AE6300D99AF3 /* SceneDelegate.swift */; };
 		92419D7F2891AE6300D99AF3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 92419D7D2891AE6300D99AF3 /* Main.storyboard */; };
@@ -45,6 +46,7 @@
 		923CFCED28A48C410044E011 /* start_sound_2beep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = start_sound_2beep.wav; sourceTree = "<group>"; };
 		923CFCEE28A48C410044E011 /* start_sound_3beep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = start_sound_3beep.wav; sourceTree = "<group>"; };
 		923CFCF228A48C640044E011 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		923CFCF828A6B4CE0044E011 /* UIResponder+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIResponder+Utils.swift"; sourceTree = "<group>"; };
 		92419D742891AE6300D99AF3 /* Custom Fitness.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Custom Fitness.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		92419D772891AE6300D99AF3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		92419D792891AE6300D99AF3 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -123,6 +125,14 @@
 			path = "Exercise SFX";
 			sourceTree = "<group>";
 		};
+		923CFCF728A6B4BE0044E011 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				923CFCF828A6B4CE0044E011 /* UIResponder+Utils.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		92419D6B2891AE6300D99AF3 = {
 			isa = PBXGroup;
 			children = (
@@ -149,6 +159,7 @@
 				92419D8C2891B6B600D99AF3 /* Models */,
 				92419D8D2891B6BF00D99AF3 /* View */,
 				92419D8B2891B69600D99AF3 /* Contollers */,
+				923CFCF728A6B4BE0044E011 /* Utils */,
 				923CFCEB28A48C410044E011 /* Exercise SFX */,
 				92419D802891AE6400D99AF3 /* Assets.xcassets */,
 				92419D852891AE6400D99AF3 /* Info.plist */,
@@ -331,6 +342,7 @@
 				92234BBF2898A14600D19CED /* EditWorkoutPopup.swift in Sources */,
 				92FEA2A628943979002E9D03 /* AddWorkoutPopup.swift in Sources */,
 				923CFCF328A48C640044E011 /* Constants.swift in Sources */,
+				923CFCF928A6B4CE0044E011 /* UIResponder+Utils.swift in Sources */,
 				92234BBD2895EE6600D19CED /* Exercise.swift in Sources */,
 				928CEC1C2892181000596BD5 /* ActivityCell.swift in Sources */,
 				92419D932891BA0C00D99AF3 /* Workout.swift in Sources */,

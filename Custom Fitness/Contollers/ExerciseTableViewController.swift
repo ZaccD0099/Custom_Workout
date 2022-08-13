@@ -24,8 +24,8 @@ class ExerciseTableViewController: UIViewController {
     private var selectedExercise : Exercise?
     
     private var player: AVAudioPlayer?
-    let cellNibName = "ActivityCell"
-    let cellReuseID = "activityCell"
+    private let cellNibName = "ActivityCell"
+    private let cellReuseID = "activityCell"
     
     private var currentExerciseSet = false
     private var completedExercise = false
@@ -65,9 +65,25 @@ class ExerciseTableViewController: UIViewController {
         tableView.dragDelegate = self
         tableView.dragInteractionEnabled = true
         
+        
+//        Playing in background
+//        do {
+//            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers, .allowAirPlay])
+//            print("Playback OK")
+//            try AVAudioSession.sharedInstance().setActive(true)
+//            print("Session is Active")
+//        } catch {
+//            print(error)
+//        }
+        
+//        keeping audio playing as other apps play audio
+
+        
         if selectedWorkout != nil {
             loadExercises()
         }
+        
+
     }
     
     
@@ -106,7 +122,7 @@ class ExerciseTableViewController: UIViewController {
     
     @IBAction func resetButtonPressed(_ sender: UIButton) {
         print("running")
-        let alert = UIAlertController(title: "Reset Workout", message: "Are you sure you want to reset all progress?", preferredStyle: .alert)
+        let resetAlert = UIAlertController(title: "Reset Workout", message: "Are you sure you want to reset all progress?", preferredStyle: .alert)
         
         let resetAction = UIAlertAction(title: "Reset", style: .default) { (action) in
 //            resets overall workout time
@@ -140,9 +156,9 @@ class ExerciseTableViewController: UIViewController {
             //            cancel action code here
         }
         
-        alert.addAction(resetAction)
-        alert.addAction(cancelAction)
-        present(alert, animated: true, completion: nil)
+        resetAlert.addAction(resetAction)
+        resetAlert.addAction(cancelAction)
+        present(resetAlert, animated: true, completion: nil)
     }
     
     //MARK: - Timer Methods
@@ -313,14 +329,11 @@ class ExerciseTableViewController: UIViewController {
         guard let url = Bundle.main.url(forResource: soundName, withExtension: "wav") else { return }
 
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+//            .mixOthers in options plays audio without turning other apps down.
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.duckOthers])
             try AVAudioSession.sharedInstance().setActive(true)
 
-            /* The following line is required for the player to work on iOS 11. Change the file type accordingly*/
             player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
-
-            /* iOS 10 and earlier require the following line:
-            player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileTypeMPEGLayer3) */
 
             guard let player = player else { return }
 
@@ -386,16 +399,27 @@ extension ExerciseTableViewController : UITableViewDataSource, ActivityCellDeleg
 //    Can also do leadingSwipActions for other direction
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { deleteAction, view, handler in
-            if let currentExercise = self.exercises?[indexPath.row] {
-                do {
-                    try self.realm.write({
-                        self.realm.delete(currentExercise)
-                    })
-                } catch {
-                    print("error in swiping row \(error)")
+            
+            let deleteAlert = UIAlertController(title: "Delete Exercise", message: "Are you sure you want to delete this exercise?", preferredStyle: .alert)
+            
+            let confirmAction = UIAlertAction(title: "Delete", style: .destructive) { action in
+                if let currentExercise = self.exercises?[indexPath.row] {
+                    do {
+                        try self.realm.write({
+                            self.realm.delete(currentExercise)
+                        })
+                    } catch {
+                        print("error in swiping row \(error)")
+                    }
+                    self.loadExercises()
                 }
-                self.loadExercises()
             }
+            
+            let cancelAction = UIAlertAction(title: "Cancel", style: .default)
+            
+            deleteAlert.addAction(cancelAction)
+            deleteAlert.addAction(confirmAction)
+            self.present(deleteAlert, animated: true)
         }
 //        Adds image above text
         deleteAction.image = UIGraphicsImageRenderer(size: CGSize(width: 30, height: 40)).image {
@@ -403,8 +427,9 @@ extension ExerciseTableViewController : UITableViewDataSource, ActivityCellDeleg
         }
         
         let editAction = UIContextualAction(style: .normal, title: "Edit") { editAction, view, handler in
-            if let selectedWorkout = self.selectedWorkout {
-                self.selectedExercise = selectedWorkout.workoutExcercises[indexPath.row]
+            
+            if let exercises = self.exercises {
+                self.selectedExercise = exercises[indexPath.row]
                 self.performSegue(withIdentifier: "goToEditExercise", sender: self)
             }
         }

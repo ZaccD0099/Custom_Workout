@@ -19,7 +19,7 @@ class EditExercisePopup: UIViewController {
     
     let realm = try! Realm()
     var delegate : EditExercisePopupProtocol?
-    var selectedExercise : Exercise?
+    private var selectedExercise : Exercise?
     
     @IBOutlet weak var popUpView: UIView!
     @IBOutlet var backgroundView: UIView!
@@ -46,6 +46,8 @@ class EditExercisePopup: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.setupKeyboardHiding()
+        
         popUpView.layer.cornerRadius = 15.0
         popUpView.layer.borderWidth = 1.0
         popUpView.layer.borderColor = UIColor(named: "custom_dark")?.cgColor
@@ -157,20 +159,52 @@ class EditExercisePopup: UIViewController {
                 self.dismiss(animated: true, completion: nil)
             }
         }
-//MARK: - keyboard Mgmt Methods
+    //MARK: - Keyboard Mgmt. Methods
     
-    deinit {
-      NotificationCenter.default.removeObserver(self)
+    private func setupKeyboardHiding() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-    
-    func hideKeyboardWhenTappedAround() {
+
+    private func hideKeyboardWhenTappedAround() {
             let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
             view.addGestureRecognizer(tap)
         }
 
-    @objc func dismissKeyboard() {
+    @objc private func dismissKeyboard() {
         view.endEditing(true)
         }
+
+    @objc private func keyboardWillShow(sender: NSNotification) {
+        guard let userInfo = sender.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue,
+              let currentTextField = UIResponder.currentFirst() as? UITextField else { return }
+
+
+        // check if the top of the keyboard is above the bottom of the currently focused textbox
+        let keyboardTopY = keyboardFrame.cgRectValue.origin.y
+        let convertedTextFieldFrame = view.convert(currentTextField.frame, from: currentTextField.superview)
+        let textFieldBottomY = convertedTextFieldFrame.origin.y + (convertedTextFieldFrame.size.height * 2)
+        
+//        print("foo - convertedTextFieldFrame: \(convertedTextFieldFrame.origin.y), textFieldBootomY: \(textFieldBottomY), keyboardTopY: \(keyboardTopY)")
+
+        // if textField bottom is below keyboard bottom - bump the frame up
+        if textFieldBottomY > keyboardTopY {
+            print("if state true")
+            let textBoxY = convertedTextFieldFrame.origin.y
+            let newFrameY = (textBoxY - keyboardTopY / 1.5) * -1
+            view.frame.origin.y = newFrameY
+        }
+
+    }
+
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        view.frame.origin.y = 0
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
 }
 
 extension EditExercisePopup : UITextFieldDelegate {

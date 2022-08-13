@@ -18,11 +18,11 @@ class WorkoutCollectionViewController: UIViewController, UICollectionViewDelegat
     
     let realm = try! Realm()
     
-    var workouts : Results<Workout>?
-    var cellSelectedWorkout : Workout?
-    var selectedWorkoutIP : Int?
-    let celldentifier = "WorkoutCell"
-    let cellName = "WorkoutCollectionViewCell"
+    private var workouts : Results<Workout>?
+    private var cellSelectedWorkout : Workout?
+    private var selectedWorkoutIP : Int?
+    private let celldentifier = "WorkoutCell"
+    private let cellName = "WorkoutCollectionViewCell"
     
     override func viewDidLoad() {
         super.viewDidLoad()
